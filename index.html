@@ -1,0 +1,480 @@
+<!doctype html>
+<!-- {{{ revealjs - settings before -->
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Sam Coveney</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/beige.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+<!--}}}-->
+
+
+<!--{{{ opening slides -->
+<section>
+
+    <!--{{{ title slide -->
+    <section>
+        <h2>Sam Coveney</h2>
+
+        <small>
+            <!--s.coveney@sheffield.ac.uk</br> -->
+            <p>
+                    2021 - 2026</br>
+                    Post-processing methods for cardiac Diffusion Tensor Imaging</br>
+                    Biomedical Imaging Department &middot; University of Leeds
+            </p>
+        </small>
+
+        <small>
+            
+            <!--s.coveney@sheffield.ac.uk</br> -->
+            <p>
+                    2017 - 2021</br>
+                    Bayesian inference for cardiac digital twins of electrophysiology</br>
+                    Department of Computer Science &middot; University of Sheffield
+            </p>
+        </small>
+
+        <small>
+            
+            <!--s.coveney@sheffield.ac.uk</br> -->
+            <p>
+                    2015 - 2017</br>
+                    Emulation (surrogate modeling) of time-expensive simulators</br>
+                    Department of Physics and Astronomy &middot; University of Sheffield
+            </p>
+        </small>
+
+
+        <small>
+            
+            <!--s.coveney@sheffield.ac.uk</br> -->
+            <p>
+                    Oct 2011 - Feb 2015</br>
+                    Theoretical Physics PhD | GPU simulations of polymer films</br>
+                    Department of Physics and Astronomy &middot; University of Sheffield
+            </p>
+        </small>
+
+    </section>
+    <!--}}}-->
+
+</section>
+
+<!--}}}-->
+
+
+<!--{{{ Cardiac diffusion tensor imaging - robust and constrained fitting -->
+<section>
+
+    <!--{{{ Cardiac diffusion tensor imaging title slide -->
+    <section>
+        <h2>Cardiac diffusion tensor imaging</h2>
+
+        <p>Investigating cardiac tissue structure with CDTI</p>
+
+        <figure>
+            <img style="margin: 0; width: 20%; height: auto" src="figures/cdti_superquadrics.png">
+            <!-- <figcaption style="line-height: 1.0; font-size: 0.75em">ERP emulator + GPMI prior for parameter fields.</figcaption> -->
+        </figure>
+
+        <p><b>Relevance: MRI; analysis pipelines</b></p>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ My CDTI role -->
+    <section>
+        <h3>My CDTI roles</h3>
+
+        <p>I write post-processing tools (registration, fitting, etc.)</p>
+
+        <p>These tools are used by many people at Uni of Leeds.</p>
+
+        <br>
+
+        <figure>
+            <img style="margin: 0; width: 80%; height: auto" src="figures/DiPy.png">
+            <figcaption style="line-height: 1.0; font-size: 0.75em">Also a contributor to the <a href="https://dipy.org/team.html">Diffusion Imaging in Python</a> project</figcaption>
+        </figure>
+
+        <!--
+        <div>
+        \[\begin{gather}
+          \hat{\theta} = \text{argmin} \sum_{i=1}^N \left( \frac{\sigma^2}{\left(\sigma^2 + r_i^2\right)^2} \right)^2 r_i^2
+        \end{gather}\]
+        </div>
+        -->
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ DTI maths -->
+    <section>
+        <h3>Diffusion Tensor Imaging (DTI) maths</h3>
+
+        <p>Model observed signal $y_i$ as:</p>
+
+        <div>
+        \[\begin{gather}
+          y_i = S_0 \exp{\left( -b_i \mathbf{g_i} \mathbf{D} \mathbf{g_i}^T \right)} + \epsilon_i
+        \end{gather}\]
+        </div>
+
+        <p>$b_i$ (scalar): diffusion gradient strength</p>
+        <p>$\mathbf{g_i}$: (vector) : diffusion gradient direction</p>
+        <p>$\mathbf{D}$: ($3 \times 3$ tensor) : diffusion tensor</p>
+
+        <p>Task: estimate $\mathbf{D}$ (and $S_0$)</p>
+
+        <!--
+        <div>
+        \[\begin{gather}
+          \hat{\theta} = \text{argmin} \sum_{i=1}^N \left( \frac{\sigma^2}{\left(\sigma^2 + r_i^2\right)^2} \right)^2 r_i^2
+        \end{gather}\]
+        </div>
+        -->
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ superquadrics -->
+    <section>
+        <h3>Short-axis cardiac DTI</h3>
+
+        <figure>
+            <img style="margin: 0; width: 50%; height: auto" src="figures/cdti_superquadrics.png">
+            <figcaption style="line-height: 1.0; font-size: 0.75em">Each glyph represents a tensor (color = helix angle)</figcaption>
+        </figure>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ M-estimators -->
+    <section>
+        <h3>Robust fitting for outlier detection</h3>
+
+        <p>Replace sum-of-squares with M-estimator</p>
+
+        <div>
+        \[\begin{gather}
+          \hat{\theta} = \text{argmin} \sum_{i=1}^N r_i^2  \longrightarrow \hat{\theta} = \text{argmin} \sum_{i=1}^N \rho(r_i)
+        \end{gather}\]
+        </div>
+
+        <p>Less sensitive to outlier signals</p>
+
+        <!--
+        <div>
+        \[\begin{gather}
+          \hat{\theta} = \text{argmin} \sum_{i=1}^N \left( \frac{\sigma^2}{\left(\sigma^2 + r_i^2\right)^2} \right)^2 r_i^2
+        \end{gather}\]
+        </div>
+        -->
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ Shot rejection
+    <section>
+        <h3>Robust fitting for outlier detection</h3>
+
+        <figure>
+            <img style="margin: 0; width: 30%; height: auto" src="figures/outliers.png">
+            <figcaption style="line-height: 1.0; font-size: 0.75em">ERP emulator + GPMI prior for parameter fields.</figcaption>
+        </figure>
+
+    </section>
+    }}}-->
+
+    <!--{{{ robust vs non-robust HA maps-->
+    <section>
+        <h3>Comparing fitting methods</h3>
+
+        <figure>
+            <img style="margin: 0; width: 40%; height: auto" src="figures/HA_robust.png">
+            <!-- <figcaption style="line-height: 1.0; font-size: 0.75em">ERP emulator + GPMI prior for parameter fields.</figcaption> -->
+        </figure>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ DKI maths -->
+    <section>
+        <h3>Diffusion Kurtosis Imaging (DKI) maths</h3>
+
+        <div>
+        \begin{split}    
+    \ln{S(\mathbf{q})} &= \ln{S_0} - \sum_{i = 1}^3 \sum_{j=1}^3 q_i q_j D_{ij} \\
+    &+ \frac{1}{6} \bar{D}^2 \sum_{i = 1}^3 \sum_{j=1}^3 \sum_{k = 1}^3 \sum_{l=1}^3 q_i q_j q_k q_l W_{ijkl}
+\end{split}
+        </div>
+
+        <p>$\mathbf{q}$: scaled diffusion gradient vector</p>
+        <p>$\mathbf{D}$: diffusion tensor | $\mathbf{W}$: kurtosis tensor</p>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ RCWLS maths -->
+    <section>
+        <h3>Robust and Constrained fitting methods</h3>
+
+        <figure>
+            <img style="margin: 0; width: 45%; height: auto" src="figures/constraints.png">
+            <!-- <figcaption style="line-height: 1.0; font-size: 0.75em">ERP emulator + GPMI prior for parameter fields.</figcaption> -->
+        </figure>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ RCWLS maps -->
+    <section>
+        <h3>Robust and Constrained fitting methods</h3>
+
+        <figure>
+            <img style="margin: 0; width: 65%; height: auto" src="figures/RCWLS_example.png">
+            <!-- <figcaption style="line-height: 1.0; font-size: 0.75em">ERP emulator + GPMI prior for parameter fields.</figcaption> -->
+        </figure>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ RCWLS measures -->
+    <section>
+        <h3>RCWLS recovers expected kurtosis properties</h3>
+
+        <figure>
+            <img style="margin: 0; width: 50%; height: auto" src="figures/RCWLS_preview.png">
+            <!-- <figcaption style="line-height: 1.0; font-size: 0.75em">ERP emulator + GPMI prior for parameter fields.</figcaption> -->
+        </figure>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ QTI robust methods -->
+    <section>
+        <h3>QTI: Q-space Trajectory Imaging</h3>
+
+        <p>
+            Constrained (left) ... Robust Constrained (right)
+        </p>
+
+        <figure>
+            <img style="margin: 0; width: 45%; height: auto" src="figures/QTI_CWLS.png">
+            <img style="margin: 0; width: 45%; height: auto" src="figures/QTI_RCWLS.png">
+            <!-- <figcaption style="line-height: 1.0; font-size: 0.75em">ERP emulator + GPMI prior for parameter fields.</figcaption> -->
+        </figure>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ UQ CDTI -->
+    <section>
+        <h3>Uncertainty Maps of Diffusion Measures</h3>
+
+        <figure>
+            <img style="margin: 0; width: 85%; height: auto" src="figures/CDTI_UQ.png">
+            <figcaption style="line-height: 1.0; font-size: 0.75em">Diffusion measures (left) and their uncertainty (right)</figcaption>
+        </figure>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ uncertainty weighted summary stats -->
+    <section>
+        <h3>Uncertainty Weighted Summary Statistics in CDTI</h3>
+
+        <figure>
+            <img style="margin: 0; width: 45%; height: auto" src="figures/fa.png">
+            <img style="margin: 0; width: 45%; height: auto" src="figures/e2a.png">
+            <figcaption style="line-height: 1.0; font-size: 0.75em">Uncertainty weighted group differences are larger (and p-values smaller)</figcaption>
+        </figure>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ optimal CDTI design -->
+    <section>
+        <h3>Acquisition design for CDTI</h3>
+
+        <center>
+        <figure>
+            <img style="margin: 0; width: 50%; height: auto" src="figures/CDTI_designs.jpg">
+            <img style="margin: 0; width: 33%; height: auto" src="figures/mean_fa.png">
+            <figcaption style="line-height: 1.0; font-size: 0.75em">What experimental design is best for a given scan time?</figcaption>
+        </figure>
+        </center>
+
+    </section>
+    <!--}}}-->
+
+</section>
+<!--}}}-->
+
+
+<!--{{{ Emulation of expensive simulations -->
+<section>
+
+    <!--{{{ Section title -->
+    <section>
+        <h2>Emulators / Surrogate Models</h2>
+
+        <p>Simulator: input parameters $\rightarrow$ outputs</p>
+
+        <p>Emulator (fast) $\approx$ Simulator (slow)</p>
+
+        <p>Use Emulator to fit parameters, do inference, etc.</p>
+
+        <br></br>
+        <p><b>Relevance: parameter estimation; acquisition design</b></p>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ Emulators for fitting cell models -->
+    <section>
+        <h3>Emulators of cardiac action potential</h3>
+
+        <p>
+            INPUTS: parameters; OUTPUTS: action potential
+            <br>
+            Find most implausible features given real data
+        </p>
+           
+        <figure>
+            <img style="margin: 0; width: 44%; height: auto; float: left" src="figures/matchAP.png">
+            <img style="margin: 0; width: 45%; height: auto; float: right" src="figures/impsAP.png">
+            <!-- <figcaption style="line-height: 1.0; font-size: 0.75em" >Application of Uncertainty Quantification to cardiac cell models</figcaption> -->
+        </figure>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ RCE Surrogates: PCA-->
+    <section>
+        <h3>Emulators of cardiac restitution curves</h3>
+
+        <p>
+            INPUTS: parameters; OUTPUTS: restitution curves
+            <br>
+            Model principle components to reduce dimensionality
+        </p>
+
+        <figure>
+            <img style="margin: 0; width: 45%; height: auto; float: left" src="figures/restitution_curves.jpg">
+            <img style="margin: 0; width: 40%; height: auto; float: right" src="figures/RC_PCA.jpg">
+        </figure>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ RCE Surrogates: inference -->
+    <section>
+        <h3>Bayesian Calibration with emulators</h3>
+
+        <p>
+            Obtain posterior distribution of parameters given data
+            <br>
+            (without having to run more simulations)
+        </p>
+
+        <figure>
+            <img style="margin: 0; width: 55%; height: auto; float: left" src="figures/RCE_samples.jpg">
+            <img style="margin: 0; width: 40%; height: auto; float: right" src="figures/RCE_posterior.jpg">
+        </figure>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ ERP Surrogate -->
+    <section>
+        <h3>Use emulators to discover new protocols</h3>
+        <!-- <h3>Calibrating cardiac electrophysiology models using latent Gaussian processes on atrial manifolds</h3> -->
+
+        <p>
+            Investigate parameter identifiability with emulators
+            <br>
+            Improve parameter estimation with better data designs
+        </p>
+
+        <figure>
+            <img style="margin: 0; width: 50%; height: auto; float: left" src="figures/ERP_sensitivity.png">
+            <img style="margin: 0; width: 48%; height: auto; float: right" src="figures/ERP_surrogates.png">
+        </figure>
+
+    </section>
+    <!--}}}-->
+
+    <!--{{{ ERP surrogate + Latent GPs -->
+    <section>
+        <h3>Spatial priors for Bayesian parameter estimation</h3>
+
+        <!--
+        <small>
+            Emulators + GP priors on parameters: simulation-free inference with UQ
+        </small>
+        -->
+
+        <figure>
+            <img style="margin: 0; width: 50%; height: auto" src="figures/ERP_flowchart.png">
+            <!-- <figcaption style="line-height: 1.0; font-size: 0.75em">ERP emulator + GPMI prior for parameter fields.</figcaption> -->
+        </figure>
+
+    </section>
+    <!--}}}-->
+
+</section>
+<!--}}}-->
+
+
+<!--{{{ Conclusion -->
+<section>
+
+    <!--{{{ Why have I applied -->
+    <section>
+        <h2>Thanks for listening</h2>
+
+    </section>
+    <!--}}}-->
+
+</section>
+<!--}}}-->
+
+
+<!-- {{{ revealjs - settings after -->
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+                <script src="plugin/math/math.js"></script>
+
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+                        	autoPlayMedia: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMath ]
+			});
+		</script>
+	</body>
+</html>
+<!-- }}} -->
